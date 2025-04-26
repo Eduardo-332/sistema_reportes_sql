@@ -1,16 +1,22 @@
-CREATE PROCEDURE pokequeue.update_poke_request(
-    @id int
-    , @status  NVARCHAR(255)
-    , @url NVARCHAR(1000)
+create or alter PROCEDURE pokequeue.create_poke_request(
+    @type NVARCHAR(255),
+    @samplesize INT = NULL
 )
-AS
+AS 
 
 SET NOCOUNT ON;
 
-UPDATE pokequeue.requests
-set id_status = ( select id from pokequeue.status where description = @status )
-    , url = @url
-    , updated = GETDATE()
-WHERE id = @id;
+insert into pokequeue.requests(
+    [type]
+    , [url]
+    , [samplesize]
+    , id_status
+) values(
+    @type
+    , ''
+    , @samplesize
+    , ( select id from pokequeue.status where description = 'sent' )
+)
 
-select 1 as completed;
+select max(id) as id from pokequeue.requests;
+
